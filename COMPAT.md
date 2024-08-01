@@ -69,7 +69,7 @@ This document describes the SQLite compatibility status of Limbo:
 | concat_ws(SEP,X,...)         | No     |         |
 | format(FORMAT,...)           | No     |         |
 | glob(X,Y)                    | No     |         |
-| hex(X)                       | No     |         |
+| hex(X)                       | Yes    |         |
 | ifnull(X,Y)                  | Yes    |         |
 | iif(X,Y,Z)                   | No     |         |
 | instr(X,Y)                   | No     |         |
@@ -112,8 +112,8 @@ This document describes the SQLite compatibility status of Limbo:
 | trim(X)                      | Yes    |         |
 | trim(X,Y)                    | Yes    |         |
 | typeof(X)                    | No     |         |
-| unhex(X)                     | No     |         |
-| unhex(X,Y)                   | No     |         |
+| unhex(X)                     | Yes    |         |
+| unhex(X,Y)                   | Yes    |         |
 | unicode(X)                   | Yes    |         |
 | unlikely(X)                  | No     |         |
 | upper(X)                     | Yes    |         |

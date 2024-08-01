@@ -442,3 +442,69 @@ do_execsql_test quote-null {
 do_execsql_test quote-integer {
   SELECT quote(123)
 } {123}
+
+
+
+do_execsql_test hex-str-a {
+  SELECT hex('a');
+} {61}
+
+do_execsql_test hex-str-aumlaut {
+  SELECT hex('ä');
+} {C3A4}
+
+do_execsql_test hex-number-1 {
+  SELECT hex(1);
+} {31}
+
+do_execsql_test hex-number-01 {
+  SELECT hex(01);
+} {31}
+
+do_execsql_test hex-str-01 {
+  SELECT hex('01');
+} {3031}
+
+do_execsql_test hex-minus-1 {
+  SELECT hex(-1);
+} {2D31}
+
+do_execsql_test hex-null {
+  SELECT hex(NULL);
+} {}
+
+
+
+
+do_execsql_test unhex-number-a {
+  SELECT unhex(61);
+} {a}
+
+do_execsql_test unhex-str-a {
+  SELECT unhex('61');
+} {a}
+
+do_execsql_test unhex-dot-uppercase {
+  SELECT unhex('2E');
+} {.}
+
+do_execsql_test unhex-dot-lowercase {
+  SELECT unhex('2e');
+} {.}
+
+do_execsql_test unhex-faulty {
+  SELECT unhex('x');
+} {}
+
+do_execsql_test unhex-null {
+  SELECT unhex(NULL);
+} {}
+
+
+do_execsql_test unhex-pattern {
+  SELECT unhex('61 62', ' ');
+} {ab}
+
+do_execsql_test unhex-pattern-faulty {
+  SELECT unhex('6 162', ' ');
+} {}

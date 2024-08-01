@@ -38,7 +38,7 @@ use datetime::{exec_date, exec_time};
 use regex::Regex;
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::rc::Rc;
 
 pub type BranchOffset = i64;
@@ -1277,6 +1277,16 @@ impl Program {
                         state.registers[*dest] = result;
                         state.pc += 1;
                     }
+                    Func::Scalar(ScalarFunc::Unhex) => {
+                        let start_reg = *start_reg;
+                        let reg_value = state.registers[start_reg].clone();
+                        let pattern_value = state.registers.get(start_reg + 1);
+
+                        let result = exec_unhex(&reg_value, pattern_value);
+
+                        state.registers[*dest] = result;
+                        state.pc += 1;
+                    }
                     Func::Scalar(ScalarFunc::Min) => {
                         let start_reg = *start_reg;
                         let reg_values = state.registers[start_reg..state.registers.len()]
@@ -1290,6 +1300,7 @@ impl Program {
                         }
                         state.pc += 1;
                     }
+
                     Func::Scalar(ScalarFunc::Max) => {
                         let start_reg = *start_reg;
                         let reg_values = state.registers[start_reg..state.registers.len()]
@@ -1350,6 +1361,11 @@ impl Program {
                     Func::Scalar(ScalarFunc::Unicode) => {
                         let reg_value = state.registers[*start_reg].borrow_mut();
                         state.registers[*dest] = exec_unicode(reg_value);
+                        state.pc += 1;
+                    }
+                    Func::Scalar(ScalarFunc::Hex) => {
+                        let reg_value = state.registers[*start_reg].borrow_mut();
+                        state.registers[*dest] = exec_hex(reg_value);
                         state.pc += 1;
                     }
                 },
@@ -1556,6 +1572,83 @@ fn exec_upper(reg: &OwnedValue) -> Option<OwnedValue> {
     }
 }
 
+fn exec_hex(reg: &OwnedValue) -> OwnedValue {
+    match reg {
+        // TODO: BLOB
+        //
+        //
+        OwnedValue::Text(text) => {
+            let hex_string: String = text.bytes().map(|byte| format!("{:02X}", byte)).collect();
+            OwnedValue::Text(Rc::new(hex_string))
+        }
+        OwnedValue::Integer(i) => {
+            let int_string = i.to_string();
+            let hex_string: String = int_string
+                .as_bytes()
+                .iter()
+                .map(|byte| format!("{:02X}", byte))
+                .collect();
+            OwnedValue::Text(Rc::new(hex_string))
+        }
+        OwnedValue::Float(float) => {
+            let float_string: String = format!("{:.?}", float);
+            let hex_string: String = float_string
+                .as_bytes()
+                .iter()
+                .map(|byte| format!("{:02X}", byte))
+                .collect();
+            OwnedValue::Text(Rc::new(hex_string))
+        }
+        _ => OwnedValue::Null,
+    }
+}
+
+fn exec_unhex(reg: &OwnedValue, ignored_chars: Option<&OwnedValue>) -> OwnedValue {
+    // TODO: SQLite converts numerals to text before calling unhex
+
+    let ignored_chars: HashSet<char> = match ignored_chars {
+        None => HashSet::new(),
+        Some(OwnedValue::Text(x)) => x.chars().filter(|&c| !c.is_ascii_hexdigit()).collect(),
+        _ => return OwnedValue::Null,
+    };
+
+    match reg {
+        OwnedValue::Text(text) => {
+            let mut hex_string = String::new();
+            let mut chars = text.chars().peekable();
+            while let Some(c) = chars.next() {
+                if c.is_ascii_hexdigit() {
+                    hex_string.push(c);
+                } else if !ignored_chars.contains(&c) {
+                    return OwnedValue::Null;
+                }
+            }
+
+            if hex_string.len() % 2 != 0 {
+                return OwnedValue::Null;
+            }
+
+            let mut bytes = Vec::new();
+            let mut chars = hex_string.chars();
+            while let Some(c) = chars.next() {
+                let byte = match c.to_digit(16) {
+                    Some(digit) => digit,
+                    None => return OwnedValue::Null,
+                };
+                let byte = byte << 4
+                    | match chars.next().unwrap().to_digit(16) {
+                        Some(digit) => digit,
+                        None => return OwnedValue::Null,
+                    };
+                bytes.push(byte as u8);
+            }
+
+            OwnedValue::Blob(Rc::new(bytes))
+        }
+        _ => OwnedValue::Null,
+    }
+}
+
 fn exec_abs(reg: &OwnedValue) -> Option<OwnedValue> {
     match reg {
         OwnedValue::Integer(x) => {
@@ -1707,8 +1800,9 @@ fn exec_if(reg: &OwnedValue, null_reg: &OwnedValue, not: bool) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        exec_abs, exec_if, exec_length, exec_like, exec_lower, exec_ltrim, exec_minmax,
-        exec_random, exec_round, exec_rtrim, exec_trim, exec_unicode, exec_upper, OwnedValue,
+        exec_abs, exec_hex, exec_if, exec_length, exec_like, exec_lower, exec_ltrim, exec_minmax,
+        exec_random, exec_round, exec_rtrim, exec_trim, exec_unhex, exec_unicode, exec_upper,
+        OwnedValue,
     };
     use std::rc::Rc;
 
@@ -1866,6 +1960,78 @@ mod tests {
         let input_int = OwnedValue::Integer(10);
         assert_eq!(exec_lower(&input_int).unwrap(), input_int);
         assert_eq!(exec_lower(&OwnedValue::Null).unwrap(), OwnedValue::Null)
+    }
+
+    #[test]
+    fn test_hex() {
+        let input_str = OwnedValue::Text(Rc::new(String::from("a")));
+        let expected_str = OwnedValue::Text(Rc::new(String::from("61")));
+        assert_eq!(exec_hex(&input_str), expected_str);
+
+        let input_str = OwnedValue::Text(Rc::new(String::from("Limbo")));
+        let expected_str = OwnedValue::Text(Rc::new(String::from("4C696D626F")));
+        assert_eq!(exec_hex(&input_str), expected_str);
+
+        let input_int = OwnedValue::Integer(1);
+        let expected_str = OwnedValue::Text(Rc::new(String::from("31")));
+        assert_eq!(exec_hex(&input_int), expected_str);
+
+        let input_int = OwnedValue::Integer(10);
+        let expected_str = OwnedValue::Text(Rc::new(String::from("3130")));
+        assert_eq!(exec_hex(&input_int), expected_str);
+
+        let input_float = OwnedValue::Float(1.0);
+        let expected_str = OwnedValue::Text(Rc::new(String::from("312E30")));
+        assert_eq!(exec_hex(&input_float), expected_str);
+
+        let input_float = OwnedValue::Float(1.010);
+        let expected_str = OwnedValue::Text(Rc::new(String::from("312E3031")));
+        assert_eq!(exec_hex(&input_float), expected_str);
+
+        assert_eq!(exec_hex(&OwnedValue::Null), OwnedValue::Null);
+    }
+
+    #[test]
+    fn test_unhex() {
+        let input = OwnedValue::Text(Rc::new(String::from("6F")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x6f]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("6f")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x6f]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61  62,63")));
+        let ignore = OwnedValue::Text(Rc::new(String::from(", ")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x62, 0x63]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61 6F")));
+        let ignore = OwnedValue::Text(Rc::new(String::from("1F ")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x6f]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("6 16F")));
+        let ignore = OwnedValue::Text(Rc::new(String::from(" ")));
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("")));
+        let expected = OwnedValue::Blob(Rc::new(vec![]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61x")));
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Null;
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61")));
+        let ignore = OwnedValue::Null;
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
     }
 
     #[test]

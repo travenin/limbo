@@ -1604,12 +1604,13 @@ fn exec_hex(reg: &OwnedValue) -> OwnedValue {
 }
 
 fn exec_unhex(reg: &OwnedValue, ignored_chars: Option<&OwnedValue>) -> OwnedValue {
-    // TODO: SQLite converts numerals to text before calling unhex
-
     let ignored_chars: HashSet<char> = match ignored_chars {
         None => HashSet::new(),
-        Some(OwnedValue::Text(x)) => x.chars().filter(|&c| !c.is_ascii_hexdigit()).collect(),
-        _ => return OwnedValue::Null,
+        // Accept characters that are not hex digits
+        Some(value) => {
+            let str = value.to_string();
+            str.chars().filter(|&c| !c.is_ascii_hexdigit()).collect()
+        }
     };
 
     match reg {
@@ -2003,6 +2004,11 @@ mod tests {
 
         let input = OwnedValue::Text(Rc::new(String::from("61  62,63")));
         let ignore = OwnedValue::Text(Rc::new(String::from(", ")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x62, 0x63]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Float(61.6263);
+        let ignore = OwnedValue::Float(1.0);
         let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x62, 0x63]));
         assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
 

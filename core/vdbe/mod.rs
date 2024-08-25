@@ -1370,6 +1370,11 @@ impl Program {
                         }
                         state.pc += 1
                     }
+                    Func::Scalar(ScalarFunc::Typeof) => {
+                        let reg_value = state.registers[*start_reg].borrow_mut();
+                        state.registers[*dest] = exec_typeof(reg_value);
+                        state.pc += 1;
+                    }
                     Func::Scalar(ScalarFunc::Unicode) => {
                         let reg_value = state.registers[*start_reg].borrow_mut();
                         state.registers[*dest] = exec_unicode(reg_value);
@@ -1759,6 +1764,20 @@ fn exec_substring(
     }
 }
 
+fn exec_typeof(reg: &OwnedValue) -> OwnedValue {
+    match reg {
+        OwnedValue::Null => OwnedValue::Text(Rc::new("null".to_string())),
+        OwnedValue::Integer(_) => OwnedValue::Text(Rc::new("integer".to_string())),
+        OwnedValue::Float(_) => OwnedValue::Text(Rc::new("real".to_string())),
+        OwnedValue::Text(_) => OwnedValue::Text(Rc::new("text".to_string())),
+        OwnedValue::Blob(_) => OwnedValue::Text(Rc::new("blob".to_string())),
+
+        // TODO: Unreachable?
+        OwnedValue::Record(_) => todo!(),
+        OwnedValue::Agg(_) => todo!(),
+    }
+}
+
 fn exec_unicode(reg: &OwnedValue) -> OwnedValue {
     match reg {
         OwnedValue::Text(_)
@@ -1871,8 +1890,8 @@ mod tests {
     use super::{
         exec_abs, exec_char, exec_if, exec_length, exec_like, exec_lower, exec_ltrim, exec_minmax,
         exec_nullif, exec_quote, exec_random, exec_round, exec_rtrim, exec_substring, exec_trim,
-        exec_unicode, exec_upper, get_new_rowid, Cursor, CursorResult, LimboError, OwnedRecord,
-        OwnedValue, Result,
+        exec_typeof, exec_unicode, exec_upper, get_new_rowid, Cursor, CursorResult, LimboError,
+        OwnedRecord, OwnedValue, Result,
     };
     use mockall::{mock, predicate};
     use rand::{rngs::mock::StepRng, thread_rng};
@@ -2048,6 +2067,29 @@ mod tests {
         let input = OwnedValue::Text(Rc::new(String::from("hello''world")));
         let expected = OwnedValue::Text(Rc::new(String::from("'hello''world'")));
         assert_eq!(exec_quote(&input), expected);
+    }
+
+    #[test]
+    fn test_typeof() {
+        let input: OwnedValue = OwnedValue::Null;
+        let expected: OwnedValue = OwnedValue::Text(Rc::new("null".to_string()));
+        assert_eq!(exec_typeof(&input), expected);
+
+        let input: OwnedValue = OwnedValue::Integer(123);
+        let expected: OwnedValue = OwnedValue::Text(Rc::new("integer".to_string()));
+        assert_eq!(exec_typeof(&input), expected);
+
+        let input: OwnedValue = OwnedValue::Float(123.456);
+        let expected: OwnedValue = OwnedValue::Text(Rc::new("real".to_string()));
+        assert_eq!(exec_typeof(&input), expected);
+
+        let input: OwnedValue = OwnedValue::Text(Rc::new("hello".to_string()));
+        let expected: OwnedValue = OwnedValue::Text(Rc::new("text".to_string()));
+        assert_eq!(exec_typeof(&input), expected);
+
+        let input: OwnedValue = OwnedValue::Blob(Rc::new("limbo".as_bytes().to_vec()));
+        let expected: OwnedValue = OwnedValue::Text(Rc::new("blob".to_string()));
+        assert_eq!(exec_typeof(&input), expected);
     }
 
     #[test]

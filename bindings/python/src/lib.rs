@@ -4,6 +4,7 @@ use limbo_core::IO;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3::types::PyTuple;
+use std::borrow::Cow;
 use std::sync::{Arc, Mutex};
 
 mod errors;
@@ -254,7 +255,7 @@ fn row_to_py(py: Python, row: &limbo_core::Row) -> PyObject {
             limbo_core::Value::Integer(i) => i.to_object(py),
             limbo_core::Value::Float(f) => f.to_object(py),
             limbo_core::Value::Text(s) => s.to_object(py),
-            limbo_core::Value::Blob(b) => b.to_object(py),
+            limbo_core::Value::Blob(b) => Cow::Borrowed(&b[..]).to_object(py),
         })
         .collect();
 

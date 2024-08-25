@@ -53,6 +53,18 @@ def test_fetchone_select_max_user_id(provider):
     assert max_id == (2,)
 
 
+@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+def test_blob(provider):
+    conn = connect(provider, "tests/database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, data FROM files where name = 'file1'")
+
+    one = cursor.fetchone()
+    assert one
+    assert one[0] == "file1"
+    assert one[1] == b"Hello World"
+
+
 def connect(provider, database):
     if provider == "limbo":
         return limbo.connect(database)

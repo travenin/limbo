@@ -4,10 +4,13 @@ import pytest
 
 import limbo
 
+test_database = "tests/database.db"
+providers = ("provider", ["sqlite3", "limbo"])
 
-@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+
+@pytest.mark.parametrize(*providers)
 def test_fetchall_select_all_users(provider):
-    conn = connect(provider, "tests/database.db")
+    conn = connect(provider, test_database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users")
 
@@ -16,9 +19,9 @@ def test_fetchall_select_all_users(provider):
     assert users == [(1, "alice"), (2, "bob")]
 
 
-@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+@pytest.mark.parametrize(*providers)
 def test_fetchall_select_user_ids(provider):
-    conn = connect(provider, "tests/database.db")
+    conn = connect(provider, test_database)
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users")
 
@@ -27,9 +30,9 @@ def test_fetchall_select_user_ids(provider):
     assert user_ids == [(1,), (2,)]
 
 
-@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+@pytest.mark.parametrize(*providers)
 def test_fetchone_select_all_users(provider):
-    conn = connect(provider, "tests/database.db")
+    conn = connect(provider, test_database)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users")
 
@@ -42,9 +45,9 @@ def test_fetchone_select_all_users(provider):
     assert bob == (2, "bob")
 
 
-@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+@pytest.mark.parametrize(*providers)
 def test_fetchone_select_max_user_id(provider):
-    conn = connect(provider, "tests/database.db")
+    conn = connect(provider, test_database)
     cursor = conn.cursor()
     cursor.execute("SELECT MAX(id) FROM users")
 
@@ -53,16 +56,18 @@ def test_fetchone_select_max_user_id(provider):
     assert max_id == (2,)
 
 
-@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+@pytest.mark.parametrize(*providers)
 def test_blob(provider):
-    conn = connect(provider, "tests/database.db")
+    conn = connect(provider, test_database)
     cursor = conn.cursor()
-    cursor.execute("SELECT name, data FROM files where name = 'file1'")
+    cursor.execute("SELECT data FROM blobs")
 
-    one = cursor.fetchone()
-    assert one
-    assert one[0] == "file1"
-    assert one[1] == b"Hello World"
+    blobs = cursor.fetchall()
+    assert len(blobs) == 256
+    for i, row in enumerate(blobs):
+        expected = bytes.fromhex(f"{i:02x}")
+        assert row[0] == expected
+        assert type(row[0]) is bytes
 
 
 def connect(provider, database):

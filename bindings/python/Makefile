@@ -1,15 +1,20 @@
 REQUIREMENTS     := requirements.txt
 REQUIREMENTS_DEV := requirements-dev.txt
 
-all: check-requirements install lint test
+all: check-requirements install-requirements lint test install-limbo
 .PHONY: all
 
-install:
+install-requirements:
 	@echo "Installing requirements..."
 	pip install -r requirements.txt -r requirements-dev.txt
 .PHONY: install
 
-test:
+install-limbo:
+	@echo "Installing limbo..."
+	pip install -e .
+.PHONY: install-limbo
+
+test: install-limbo
 	@echo "Running tests..."
 	pytest
 .PHONY: test

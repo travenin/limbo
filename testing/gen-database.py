@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 
+import os
 import sqlite3
 from faker import Faker
 
-conn = sqlite3.connect('database.db')
+db_path = "testing.db"
+if os.path.exists(db_path):
+    os.remove(db_path)
+conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
-# Create the user table
-cursor.execute('''
+fake = Faker()
+
+
+#### USERS TABLE ####
+
+cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         first_name TEXT,
@@ -20,20 +28,9 @@ cursor.execute('''
         zipcode TEXT,
         age INTEGER
     )
-''')
+""")
 
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        price REAL
-    )
-''')
-
-product_list = ["hat", "cap", "shirt", "sweater", "sweatshirt",
-    "shorts", "jeans", "sneakers", "boots", "coat", "accessories"]
-
-fake = Faker()
+Faker.seed(0)
 for _ in range(10000):
     first_name = fake.first_name()
     last_name = fake.last_name()
@@ -45,19 +42,82 @@ for _ in range(10000):
     zipcode = fake.zipcode()
     age = fake.random_int(min=1, max=100)
 
-    cursor.execute('''
+    cursor.execute(
+        """
         INSERT INTO users (first_name, last_name, email, phone_number, address, city, state, zipcode, age)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (first_name, last_name, email, phone_number, address, city, state, zipcode, age))
+        """,
+        (
+            first_name,
+            last_name,
+            email,
+            phone_number,
+            address,
+            city,
+            state,
+            zipcode,
+            age,
+        ),
+    )
 
+
+#### PRODUCTS TABLE ####
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS products (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        price REAL
+    )
+""")
+
+product_list = [
+    "hat",
+    "cap",
+    "shirt",
+    "sweater",
+    "sweatshirt",
+    "shorts",
+    "jeans",
+    "sneakers",
+    "boots",
+    "coat",
+    "accessories",
+]
+
+Faker.seed(0)
 for product in product_list:
     price = fake.random_int(min=1, max=100)
-    cursor.execute('''
+    cursor.execute(
+        """
         INSERT INTO products (name, price)
         VALUES (?, ?)
-    ''', (product, price))
+        """,
+        (product, price),
+    )
 
 
+#### BLOBS TABLE ####
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS blobs (
+        id INTEGER PRIMARY KEY,
+        text_data BLOB,
+        random_data BLOB
+    )
+""")
+
+Faker.seed(0)
+for _ in range(100):
+    text_data = fake.text(50).encode()
+    random_data = fake.binary(length=128)
+    cursor.execute(
+        """
+        INSERT INTO blobs (text_data, random_data)
+        VALUES (?, ?)
+        """,
+        (text_data, random_data),
+    )
 
 conn.commit()
 conn.close()

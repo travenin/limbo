@@ -1,5 +1,7 @@
 coverage==7.6.1
     # via pytest-cov
+faker==28.4.1
+    # via limbo (pyproject.toml)
 iniconfig==2.0.0
     # via pytest
 mypy==1.11.0
@@ -16,8 +18,12 @@ pytest==8.3.1
     #   pytest-cov
 pytest-cov==5.0.0
     # via limbo (pyproject.toml)
+python-dateutil==2.9.0.post0
+    # via faker
 ruff==0.5.4
     # via limbo (pyproject.toml)
+six==1.16.0
+    # via python-dateutil
 typing-extensions==4.12.2
     # via
     #   limbo (pyproject.toml)

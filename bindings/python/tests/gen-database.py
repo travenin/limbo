@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 
+import os
 import sqlite3
 
-conn = sqlite3.connect("database.db")
+from faker import Faker
+
+dirname = os.path.dirname(__file__)
+db_path = os.path.join(dirname, "database.db")
+
+if os.path.exists(db_path):
+    os.remove(db_path)
+conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
-# Create the user table
+fake = Faker()
+
+
+#### USERS TABLE ####
+
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INT PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         username TEXT
-    )
+    );
 """)
 
 users_list = [
@@ -21,10 +33,31 @@ users_list = [
 for user in users_list:
     cursor.execute(
         """
-            INSERT INTO users (name)
-            VALUES (?)
+        INSERT INTO users (username)
+        VALUES (?)
         """,
-        (user),
+        (user,),
+    )
+
+
+# #### BLOBS TABLE ####
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS blobs (
+        id INTEGER PRIMARY KEY,
+        data BLOB
+    )
+""")
+
+Faker.seed(0)
+for i in range(256):
+    data = bytes.fromhex(f"{i:02x}")
+    cursor.execute(
+        """
+        INSERT INTO blobs (data)
+        VALUES (?)
+        """,
+        (data,),
     )
 
 conn.commit()

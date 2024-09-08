@@ -276,7 +276,8 @@ fn query(
                                 Value::Float(f) => print!("{:?}", f),
                                 Value::Text(s) => print!("{}", s),
                                 Value::Blob(b) => {
-                                    print!("{}", String::from_utf8_lossy(&b.to_vec()))
+                                    // print!("{}", String::from_utf8_lossy(&b.to_vec()))
+                                    print!("{}", String::from_utf8(b.to_vec()).unwrap())
                                 }
                             }
                         }

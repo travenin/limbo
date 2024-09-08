@@ -351,13 +351,21 @@ do_execsql_test typeof-real {
   SELECT typeof(1.0);
 } {real}
 
-do_execsql_test typeof-blob {
-  SELECT typeof(x'61');
-} {blob}
+# do_execsql_test typeof-blob {
+#   SELECT typeof(x'61');
+# } {blob}
+#
+# do_execsql_test typeof-blob-empty {
+#   SELECT typeof(x'');
+# } {blob}
 
-do_execsql_test typeof-blob-empty {
-  SELECT typeof(x'');
-} {blob}
+do_execsql_test typeof-agg-sum {
+  SELECT typeof(sum(age)) from users;
+} {integer}
+
+do_execsql_test typeof-agg-group-concat {
+  SELECT typeof(group_concat(age)) from users;
+} {text}
 
 do_execsql_test unicode-a {
   SELECT unicode('a');

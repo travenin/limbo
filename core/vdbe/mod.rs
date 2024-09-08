@@ -2378,5 +2378,81 @@ mod tests {
         let start_value = OwnedValue::Integer(10);
         let length_value = OwnedValue::Null;
         let expected_val = OwnedValue::Text(Rc::new(String::from("")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Integer(-4);
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Text(Rc::new(String::from("imb")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Integer(-1);
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Text(Rc::new(String::from("o")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Integer(1);
+        let length_value = OwnedValue::Integer(-3);
+        let expected_val = OwnedValue::Text(Rc::new(String::from("")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Integer(0);
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Text(Rc::new(String::from("li")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("".to_string()));
+        let start_value = OwnedValue::Integer(1);
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Text(Rc::new(String::from("")));
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Null;
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Null;
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Text(Rc::new("limbo".to_string()));
+        let start_value = OwnedValue::Integer(1);
+        let length_value = OwnedValue::Null;
+        let expected_val = OwnedValue::Null;
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
+
+        let str_value = OwnedValue::Null;
+        let start_value = OwnedValue::Integer(1);
+        let length_value = OwnedValue::Integer(3);
+        let expected_val = OwnedValue::Null;
+        assert_eq!(
+            exec_substring(&str_value, &start_value, &length_value),
+            expected_val
+        );
     }
 }

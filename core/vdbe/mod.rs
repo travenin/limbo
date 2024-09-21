@@ -1765,6 +1765,7 @@ fn exec_substring(
 }
 
 fn exec_typeof(reg: &OwnedValue) -> OwnedValue {
+    println!("reg: {:?}", reg);
     match reg {
         OwnedValue::Null => OwnedValue::Text(Rc::new("null".to_string())),
         OwnedValue::Integer(_) => OwnedValue::Text(Rc::new("integer".to_string())),

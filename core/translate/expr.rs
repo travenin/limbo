@@ -632,9 +632,33 @@ pub fn translate_expr(
                 Func::resolve_function(normalize_ident(name.0.as_str()).as_str(), args_count).ok();
 
             match func_type {
-                Some(Func::Agg(_)) => {
-                    crate::bail_parse_error!("aggregation function in non-aggregation context")
-                }
+                Some(Func::Agg(agg)) => match agg {
+                    AggFunc::Sum => {
+                        let regs = program.alloc_register();
+
+                        let mut cursor_id = None;
+                        if let Some(referenced_tables) = referenced_tables {
+                            if let Some(cursor_hint) = cursor_hint {
+                                cursor_id = Some(cursor_hint);
+                            } else {
+                                for (table, alias) in referenced_tables.iter() {
+                                    if alias == "main" {
+                                        cursor_id = Some(0);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        program.emit_insn(Insn::Function {
+                            start_reg: regs,
+                            dest: target_register,
+                            func: crate::vdbe::Func::Agg(Aggregate::Sum(cursor_id)),
+                        });
+                        Ok(target_register)
+                    }
+
+                    _ => todo!(),
+                },
 
                 Some(Func::Json(j)) => match j {
                     JsonFunc::JSON => {

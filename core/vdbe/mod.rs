@@ -1551,6 +1551,12 @@ impl Program {
                                 let result = exec_hex(reg_value);
                                 state.registers[*dest] = result;
                             }
+                            ScalarFunc::Unhex => {
+                                let reg_value = state.registers[*start_reg].clone();
+                                let ignored_chars = state.registers.get(*start_reg + 1);
+                                let result = exec_unhex(&reg_value, ignored_chars);
+                                state.registers[*dest] = result;
+                            }
                             ScalarFunc::Random => {
                                 state.registers[*dest] = exec_random();
                             }

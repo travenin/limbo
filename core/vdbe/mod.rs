@@ -2320,7 +2320,7 @@ mod tests {
     use super::{
         exec_abs, exec_char, exec_hex, exec_if, exec_length, exec_like, exec_lower, exec_ltrim,
         exec_max, exec_min, exec_nullif, exec_quote, exec_random, exec_round, exec_rtrim,
-        exec_sign, exec_substring, exec_trim, exec_typeof, exec_unicode, exec_upper,
+        exec_sign, exec_substring, exec_trim, exec_typeof, exec_unhex, exec_unicode, exec_upper,
         execute_sqlite_version, get_new_rowid, AggContext, Cursor, CursorResult, LimboError,
         OwnedRecord, OwnedValue, Result,
     };
@@ -2670,6 +2670,58 @@ mod tests {
         let input_float = OwnedValue::Float(12.34);
         let expected_val = OwnedValue::Text(Rc::new(String::from("31322E3334")));
         assert_eq!(exec_hex(&input_float), expected_val);
+    }
+
+    #[test]
+    fn test_unhex() {
+        let input = OwnedValue::Text(Rc::new(String::from("6F")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x6f]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("6f")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x6f]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61  62,63")));
+        let ignore = OwnedValue::Text(Rc::new(String::from(", ")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x62, 0x63]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Float(61.6263);
+        let ignore = OwnedValue::Float(1.0);
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x62, 0x63]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61 6F")));
+        let ignore = OwnedValue::Text(Rc::new(String::from("1F ")));
+        let expected = OwnedValue::Blob(Rc::new(vec![0x61, 0x6f]));
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("6 16F")));
+        let ignore = OwnedValue::Text(Rc::new(String::from(" ")));
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("611")));
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("")));
+        let expected = OwnedValue::Blob(Rc::new(vec![]));
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61x")));
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Null;
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, None), expected);
+
+        let input = OwnedValue::Text(Rc::new(String::from("61")));
+        let ignore = OwnedValue::Null;
+        let expected = OwnedValue::Null;
+        assert_eq!(exec_unhex(&input, Some(&ignore)), expected);
     }
 
     #[test]

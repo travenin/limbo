@@ -2171,6 +2171,34 @@ fn exec_hex(reg: &OwnedValue) -> OwnedValue {
     }
 }
 
+fn exec_unhex(reg: &OwnedValue, ignored_chars: Option<&OwnedValue>) -> OwnedValue {
+    match reg {
+        OwnedValue::Text(text) => match hex::decode(text.as_bytes()) {
+            Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
+            Err(_) => OwnedValue::Null,
+        },
+        OwnedValue::Blob(blob) => match hex::decode(blob.as_slice()) {
+            Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
+            Err(_) => OwnedValue::Null,
+        },
+        OwnedValue::Integer(int) => {
+            let hex_string = format!("{:X}", int);
+            match hex::decode(hex_string.as_bytes()) {
+                Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
+                Err(_) => OwnedValue::Null,
+            }
+        }
+        OwnedValue::Float(float) => {
+            let hex_string = format!("{:X}", float.to_bits());
+            match hex::decode(hex_string.as_bytes()) {
+                Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
+                Err(_) => OwnedValue::Null,
+            }
+        }
+        _ => OwnedValue::Null,
+    }
+}
+
 fn exec_unicode(reg: &OwnedValue) -> OwnedValue {
     match reg {
         OwnedValue::Text(_)

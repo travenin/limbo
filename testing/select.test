@@ -20,8 +20,8 @@ do_execsql_test select-blob {
 } {limbo}
 
 do_execsql_test select-blob-no-ascii {
-  SELECT x'ff';
-} {ÿ}
+  SELECT x'F09FA680';
+} {🦀}
 
 do_execsql_test select-limit-0 {
   SELECT id FROM users LIMIT 0;

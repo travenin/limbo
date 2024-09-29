@@ -40,7 +40,7 @@ use rand::{thread_rng, Rng};
 use regex::Regex;
 use std::borrow::BorrowMut;
 use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fmt::Display;
 use std::rc::Rc;
 
@@ -2178,30 +2178,28 @@ fn exec_hex(reg: &OwnedValue) -> OwnedValue {
 }
 
 fn exec_unhex(reg: &OwnedValue, ignored_chars: Option<&OwnedValue>) -> OwnedValue {
-    match reg {
-        OwnedValue::Text(text) => match hex::decode(text.as_bytes()) {
-            Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
-            Err(_) => OwnedValue::Null,
-        },
-        OwnedValue::Blob(blob) => match hex::decode(blob.as_slice()) {
-            Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
-            Err(_) => OwnedValue::Null,
-        },
-        OwnedValue::Integer(int) => {
-            let hex_string = format!("{:X}", int);
-            match hex::decode(hex_string.as_bytes()) {
-                Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
-                Err(_) => OwnedValue::Null,
-            }
-        }
-        OwnedValue::Float(float) => {
-            let hex_string = format!("{:X}", float.to_bits());
-            match hex::decode(hex_string.as_bytes()) {
-                Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
-                Err(_) => OwnedValue::Null,
-            }
-        }
-        _ => OwnedValue::Null,
+    if *reg == OwnedValue::Null || ignored_chars == Some(&OwnedValue::Null) {
+        return OwnedValue::Null;
+    }
+
+    let ignored_chars: Vec<char> = match ignored_chars {
+        None => vec![],
+        Some(value) => value
+            .to_string()
+            .chars()
+            .filter(|&c| !c.is_ascii_hexdigit())
+            .collect(),
+    };
+
+    let hex_str = reg
+        .to_string()
+        .chars()
+        .filter(|c| !ignored_chars.contains(c))
+        .collect::<String>();
+
+    match hex::decode(hex_str) {
+        Ok(bytes) => OwnedValue::Blob(Rc::new(bytes)),
+        Err(_) => OwnedValue::Null,
     }
 }
 

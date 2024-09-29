@@ -119,6 +119,52 @@ do_execsql_test hex-null {
   select hex(null)
 } {}
 
+
+
+do_execsql_test unhex-number-a {
+  SELECT unhex(61);
+} {a}
+
+do_execsql_test unhex-str-a {
+  SELECT unhex('61');
+} {a}
+
+do_execsql_test unhex-dot-uppercase {
+  SELECT unhex('2E');
+} {.}
+
+do_execsql_test unhex-dot-lowercase {
+  SELECT unhex('2e');
+} {.}
+
+do_execsql_test unhex-no-hex {
+  SELECT unhex('x');
+} {}
+
+do_execsql_test unhex-null {
+  SELECT unhex(NULL);
+} {}
+
+do_execsql_test unhex-pattern {
+  SELECT unhex(' 61_ 62__', '_ ');
+} {ab}
+
+do_execsql_test unhex-pattern-faulty {
+  SELECT unhex('6 162', ' ');
+} {}
+
+do_execsql_test unhex-pattern-ignore-hex {
+  SELECT unhex('61', '16');
+} {a}
+
+do_execsql_test unhex-pattern-integer {
+  SELECT unhex(6162);
+} {ab}
+
+do_execsql_test unhex-pattern-real {
+  SELECT unhex(61.62, '.');
+} {ab}
+
 do_execsql_test trim {
   SELECT trim('   Limbo    ');
 } {Limbo}

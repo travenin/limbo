@@ -5,6 +5,25 @@ import pytest
 import limbo
 
 
+@pytest.mark.parametrize(
+    "query, expected",
+    [
+        ("select concat('l', 'i');", ("li",)),
+        ("select lower('Limbo');", ("limbo",)),
+        ("select instr(x'000102', x'01');", (2,)),
+        ("select hex('limbo');", ("6C696D626F",)),
+        ("select zeroblob(2);", (b"\0\0",)),
+    ],
+)
+@pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
+def test_sql_queries(provider, query, expected):
+    conn = connect(provider, "tests/database.db")
+    cursor = conn.cursor()
+    cursor.execute(query)
+    result = cursor.fetchone()
+    assert result == expected
+
+
 @pytest.mark.parametrize("provider", ["sqlite3", "limbo"])
 def test_fetchall_select_all_users(provider):
     conn = connect(provider, "tests/database.db")

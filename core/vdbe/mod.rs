@@ -37,6 +37,7 @@ use crate::{Result, DATABASE_VERSION};
 
 use datetime::{exec_date, exec_time, exec_unixepoch};
 
+use hex::ToHex;
 use rand::distributions::{Distribution, Uniform};
 use rand::{thread_rng, Rng};
 use regex::Regex;
@@ -44,6 +45,7 @@ use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Display;
+use std::ops::Deref;
 use std::rc::Rc;
 
 pub type BranchOffset = i64;
@@ -2140,6 +2142,16 @@ fn get_indent_count(indent_count: usize, curr_insn: &Insn, prev_insn: Option<&In
     }
 }
 
+// Convert a value to signed 64-bit integer or 0 if it's not possible
+fn value_i64(value: &OwnedValue) -> i64 {
+    match value {
+        OwnedValue::Integer(i) => *i,
+        OwnedValue::Float(f) => *f as i64,
+        OwnedValue::Text(s) => s.parse().unwrap_or(0),
+        _ => 0,
+    }
+}
+
 fn exec_lower(reg: &OwnedValue) -> Option<OwnedValue> {
     match reg {
         OwnedValue::Text(t) => Some(OwnedValue::Text(Rc::new(t.to_lowercase()))),
@@ -2274,15 +2286,8 @@ fn exec_random() -> OwnedValue {
 }
 
 fn exec_randomblob(reg: &OwnedValue) -> OwnedValue {
-    let length = match reg {
-        OwnedValue::Integer(i) => *i,
-        OwnedValue::Float(f) => *f as i64,
-        OwnedValue::Text(t) => t.parse().unwrap_or(1),
-        _ => 1,
-    }
-    .max(1) as usize;
-
-    let mut blob: Vec<u8> = vec![0; length];
+    let length = value_i64(reg).max(1);
+    let mut blob: Vec<u8> = vec![0; length as usize];
     getrandom::getrandom(&mut blob).expect("Failed to generate random blob");
     OwnedValue::Blob(Rc::new(blob))
 }
@@ -2604,12 +2609,7 @@ fn exec_rtrim(reg: &OwnedValue, pattern: Option<OwnedValue>) -> OwnedValue {
 }
 
 fn exec_zeroblob(req: &OwnedValue) -> OwnedValue {
-    let length: i64 = match req {
-        OwnedValue::Integer(i) => *i,
-        OwnedValue::Float(f) => *f as i64,
-        OwnedValue::Text(s) => s.parse().unwrap_or(0),
-        _ => 0,
-    };
+    let length = value_i64(req);
     OwnedValue::Blob(Rc::new(vec![0; length.max(0) as usize]))
 }
 
@@ -2644,8 +2644,8 @@ mod tests {
         exec_abs, exec_char, exec_hex, exec_if, exec_instr, exec_length, exec_like, exec_lower,
         exec_ltrim, exec_max, exec_min, exec_nullif, exec_quote, exec_random, exec_randomblob,
         exec_round, exec_rtrim, exec_sign, exec_substring, exec_trim, exec_typeof, exec_unhex,
-        exec_unicode, exec_upper, exec_zeroblob, execute_sqlite_version, get_new_rowid, AggContext,
-        Cursor, CursorResult, LimboError, OwnedRecord, OwnedValue, Result,
+        exec_unicode, exec_upper, exec_zeroblob, execute_sqlite_version, get_new_rowid, value_i64,
+        AggContext, Cursor, CursorResult, LimboError, OwnedRecord, OwnedValue, Result,
     };
     use mockall::{mock, predicate};
     use rand::{rngs::mock::StepRng, thread_rng};
@@ -2713,6 +2713,33 @@ mod tests {
         fn exists(&mut self, _key: &OwnedValue) -> Result<CursorResult<bool>> {
             unimplemented!()
         }
+    }
+
+    #[test]
+    fn test_value_i64() {
+        let input = OwnedValue::Integer(123);
+        let expected = 123;
+        assert_eq!(value_i64(&input), expected);
+
+        let input = OwnedValue::Float(123.456);
+        let expected = 123;
+        assert_eq!(value_i64(&input), expected);
+
+        let input = OwnedValue::Float(123.999);
+        let expected = 123;
+        assert_eq!(value_i64(&input), expected);
+
+        let input = OwnedValue::Text(Rc::new("123".to_string()));
+        let expected = 123;
+        assert_eq!(value_i64(&input), expected);
+
+        let input = OwnedValue::Text(Rc::new("abc".to_string()));
+        let expected = 0;
+        assert_eq!(value_i64(&input), expected);
+
+        let input = OwnedValue::Null;
+        let expected = 0;
+        assert_eq!(value_i64(&input), expected);
     }
 
     #[test]

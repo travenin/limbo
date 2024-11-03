@@ -42,7 +42,7 @@ regex = "1.10.5"
 chrono = "0.4.38"
 julian_day_converter = "0.3.2"
 jsonb = "0.4.1"
-indexmap = { version="2.2.6", features = ["serde"] }
+indexmap = { version = "2.2.6", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 pest = "2.0"
 pest_derive = "2.0"
@@ -64,4 +64,8 @@ tempfile = "3.8.0"
 
 [[bench]]
 name = "benchmark"
+harness = false
+
+[[bench]]
+name = "scalar_functions"
 harness = false

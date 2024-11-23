@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use limbo_core::{Database, PlatformIO, IO};
 use pprof::criterion::{Output, PProfProfiler};
 use rusqlite::types::Value;
@@ -13,18 +13,18 @@ fn bench(c: &mut Criterion) {
 fn hex_bench(c: &mut Criterion) {
     let mut group = c.benchmark_group("hex");
     let inputs = vec![
-        "",
         "limbo",
+        "Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus tristique cursus commodo primis volutpat elementum. Ante vehicula efficitur nulla scelerisque dictumst nisi.",
         "Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus tristique cursus commodo primis volutpat elementum. Ante vehicula efficitur nulla scelerisque dictumst nisi. Rhoncus metus vitae; fusce vel facilisis hac. Nullam laoreet nostra lorem tempus nam varius mauris aliquet. Velit platea ultricies senectus conubia nisi ultrices mauris dignissim interdum. Rutrum magnis condimentum ultrices egestas imperdiet, elit consequat. Odio sagittis turpis ex ipsum est.",
     ];
 
     for input in inputs {
-        group.throughput(Throughput::Elements(1));
-        group.bench_function(format!("limbo: hex(x), len = {}", input.len()), |b| {
-            b.iter(|| call_limbo(&format!("SELECT hex('{}')", input)));
+        let query = format!("SELECT hex('{}')", input);
+        group.bench_with_input(BenchmarkId::new("limbo", input.len()), input, |b, i| {
+            b.iter(|| call_limbo(&query));
         });
-        group.bench_function(format!("rusqlite: hex(x), len = {}", input.len()), |b| {
-            b.iter(|| call_rusqlite(&format!("SELECT hex('{}')", input)));
+        group.bench_with_input(BenchmarkId::new("rusqlite", input.len()), input, |b, i| {
+            b.iter(|| call_rusqlite(&query));
         });
     }
 }
@@ -38,12 +38,12 @@ fn unhex_bench(c: &mut Criterion) {
     ];
 
     for input in inputs {
-        group.throughput(Throughput::Elements(1));
-        group.bench_function(format!("limbo: unhex(x), len = {}", input.len()), |b| {
-            b.iter(|| call_limbo(&format!("SELECT unhex('{}')", input)));
+        let query = format!("SELECT unhex('{}')", input);
+        group.bench_with_input(BenchmarkId::new("limbo", input.len()), input, |b, i| {
+            b.iter(|| call_limbo(&query));
         });
-        group.bench_function(format!("rusqlite: unhex(x), len = {}", input.len()), |b| {
-            b.iter(|| call_rusqlite(&format!("SELECT unhex('{}')", input)));
+        group.bench_with_input(BenchmarkId::new("rusqlite", input.len()), input, |b, i| {
+            b.iter(|| call_rusqlite(&query));
         });
     }
 }
@@ -58,15 +58,13 @@ fn substr_bench(c: &mut Criterion) {
     for input in inputs {
         group.throughput(Throughput::Elements(1));
         let query = format!("SELECT substr('{}', {}, {})", input.0, input.1, input.2);
-        group.bench_function(
-            format!("limbo: substr(x,y,z) len = {}", input.0.len()),
-            |b| {
-                b.iter(|| call_limbo(&query));
-            },
-        );
-        group.bench_function(
-            format!("rusqlite: substr(x,y,z) len = {}", input.0.len()),
-            |b| {
+        group.bench_with_input(BenchmarkId::new("limbo", input.0.len()), input.0, |b, i| {
+            b.iter(|| call_limbo(&query));
+        });
+        group.bench_with_input(
+            BenchmarkId::new("rusqlite", input.0.len()),
+            input.0,
+            |b, i| {
                 b.iter(|| call_rusqlite(&query));
             },
         );

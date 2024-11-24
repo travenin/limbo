@@ -3,7 +3,7 @@ use sqlite3_parser::ast::{self, UnaryOperator};
 use super::optimizer::CachedResult;
 #[cfg(feature = "json")]
 use crate::function::JsonFunc;
-use crate::function::{AggFunc, Func, FuncCtx, ScalarFunc};
+use crate::function::{AggFunc, Func, FuncCtx, MathFunc, ScalarFunc};
 use crate::schema::{PseudoTable, Table, Type};
 use crate::util::normalize_ident;
 use crate::vdbe::{builder::ProgramBuilder, BranchOffset, Insn};
@@ -1437,6 +1437,9 @@ pub fn translate_expr(
                         }
                     }
                 }
+                Func::Math(mfs) => match mfs {
+                    _ => unimplemented!(),
+                },
             }
         }
         ast::Expr::FunctionCallStar { .. } => todo!(),

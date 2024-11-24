@@ -24,7 +24,7 @@ pub mod sorter;
 mod datetime;
 
 use crate::error::{LimboError, SQLITE_CONSTRAINT_PRIMARYKEY};
-use crate::function::{AggFunc, FuncCtx, ScalarFunc};
+use crate::function::{AggFunc, FuncCtx, MathFunc, ScalarFunc};
 use crate::pseudo::PseudoCursor;
 use crate::schema::Table;
 use crate::storage::sqlite3_ondisk::DatabaseHeader;
@@ -2257,6 +2257,9 @@ impl Program {
                                 let version = execute_sqlite_version(version_integer);
                                 state.registers[*dest] = OwnedValue::Text(Rc::new(version));
                             }
+                        },
+                        crate::function::Func::Math(math_func) => match math_func {
+                            _ => unimplemented!(),
                         },
                         crate::function::Func::Agg(_) => {
                             unreachable!("Aggregate functions should not be handled here")

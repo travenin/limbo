@@ -361,3 +361,208 @@ do_execsql_test bitwise-not-zero {
 	SELECT ~0
 } {-1}
 
+
+set tolerance 1e-14
+
+do_execsql_test_tolerance sin-int {
+  SELECT sin(1)
+} {0.841470984807897} $tolerance
+
+do_execsql_test_tolerance sin-float {
+  SELECT sin(-0.5)
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-str {
+  SELECT sin('-0.5')
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-null {
+  SELECT sin(null)
+} {} $tolerance
+
+do_execsql_test_tolerance sin-products-id {
+  SELECT sin(id) from products
+} {0.8414709848078965
+0.9092974268256817
+0.1411200080598672
+-0.7568024953079282
+-0.9589242746631385
+-0.27941549819892586
+0.6569865987187891
+0.9893582466233818
+0.4121184852417566
+-0.5440211108893698
+-0.9999902065507035} $tolerance
+
+
+do_execsql_test_tolerance cos-int {
+  SELECT cos(1)
+} {0.54030230586814} $tolerance
+
+do_execsql_test_tolerance cos-float {
+  SELECT cos(-0.5)
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-str {
+  SELECT cos('-0.5')
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-null {
+  SELECT cos(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance tan-int {
+  SELECT tan(1)
+} {1.5574077246549} $tolerance
+
+do_execsql_test_tolerance tan-float {
+  SELECT tan(-0.5)
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-str {
+  SELECT tan('-0.5')
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-null {
+  SELECT tan(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance acos-int {
+  SELECT acos(1)
+} {0.0} $tolerance
+
+do_execsql_test_tolerance acos-float {
+  SELECT acos(-0.5)
+} {2.0943951023931957} $tolerance
+
+do_execsql_test_tolerance acos-str {
+  SELECT acos('-0.5')
+} {2.0943951023931957} $tolerance
+
+do_execsql_test_tolerance acos-null {
+  SELECT acos(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance acosh-int {
+  SELECT acosh(1)
+} {0.0} $tolerance
+
+do_execsql_test_tolerance acosh-float {
+  SELECT acosh(1.5)
+} {0.962423650119207} $tolerance
+
+do_execsql_test_tolerance acosh-str {
+  SELECT acosh('1.5')
+} {0.962423650119207} $tolerance
+
+do_execsql_test_tolerance acosh-invalid {
+  SELECT acosh(0.99)
+} {} $tolerance
+
+do_execsql_test_tolerance acosh-null {
+  SELECT acosh(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance asin-int {
+  SELECT asin(1)
+} {1.5707963267948966} $tolerance
+
+do_execsql_test_tolerance asin-float {
+  SELECT asin(-0.5)
+} {-0.5235987755982989} $tolerance
+
+do_execsql_test_tolerance asin-str {
+  SELECT asin('-0.5')
+} {-0.5235987755982989} $tolerance
+
+do_execsql_test_tolerance asin-null {
+  SELECT asin(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance asinh-int {
+  SELECT asinh(1)
+} {0.881373587019543} $tolerance
+
+do_execsql_test_tolerance asinh-float {
+  SELECT asinh(-0.5)
+} {-0.48121182505960347} $tolerance
+
+do_execsql_test_tolerance asinh-str {
+  SELECT asinh('-0.5')
+} {-0.48121182505960347} $tolerance
+
+do_execsql_test_tolerance asinh-null {
+  SELECT asinh(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance atan-int {
+  SELECT atan(1)
+} {0.7853981633974483} $tolerance
+
+do_execsql_test_tolerance atan-float {
+  SELECT atan(-0.5)
+} {-0.4636476090008061} $tolerance
+
+do_execsql_test_tolerance atan-str {
+  SELECT atan('-0.5')
+} {-0.4636476090008061} $tolerance
+
+do_execsql_test_tolerance atan-null {
+  SELECT atan(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance atanh-int {
+  SELECT atanh(0)
+} {0.0} $tolerance
+
+do_execsql_test_tolerance atanh-float {
+  SELECT atanh(-0.5)
+} {-0.5493061443340548} $tolerance
+
+do_execsql_test_tolerance atanh-str {
+  SELECT atanh('-0.5')
+} {-0.5493061443340548} $tolerance
+
+do_execsql_test_tolerance atanh-null {
+  SELECT atanh(null)
+} {} $tolerance
+
+
+do_execsql_test ceil-int {
+  SELECT ceil(1)
+} {1}
+
+do_execsql_test ceil-float {
+  SELECT ceil(-1.5)
+} {-1.0}
+
+do_execsql_test ceil-str {
+  SELECT ceil('1.5')
+} {2.0}
+
+do_execsql_test ceil-null {
+  SELECT ceil(null)
+} {}
+
+do_execsql_test ceiling-int {
+  SELECT ceiling(1)
+} {1}
+
+do_execsql_test ceiling-float {
+  SELECT ceiling(-1.5)
+} {-1.0}
+
+do_execsql_test ceiling-str {
+  SELECT ceiling('1.5')
+} {2.0}
+
+do_execsql_test ceil-null {
+  SELECT ceiling(null)
+} {}

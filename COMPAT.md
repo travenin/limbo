@@ -164,16 +164,16 @@ Feature support of [sqlite expr syntax](https://www.sqlite.org/lang_expr.html).
 
 | Function   | Status | Comment |
 | ---------- | ------ | ------- |
-| acos(X)    | No     |         |
-| acosh(X)   | No     |         |
-| asin(X)    | No     |         |
-| asinh(X)   | No     |         |
-| atan(X)    | No     |         |
+| acos(X)    | Yes    |         |
+| acosh(X)   | Yes    |         |
+| asin(X)    | Yes    |         |
+| asinh(X)   | Yes    |         |
+| atan(X)    | Yes    |         |
 | atan2(Y,X) | No     |         |
-| atanh(X)   | No     |         |
-| ceil(X)    | No     |         |
-| ceiling(X) | No     |         |
-| cos(X)     | No     |         |
+| atanh(X)   | Yes    |         |
+| ceil(X)    | Yes    |         |
+| ceiling(X) | Yes    |         |
+| cos(X)     | Yes    |         |
 | cosh(X)    | No     |         |
 | degrees(X) | No     |         |
 | exp(X)     | No     |         |
@@ -188,10 +188,10 @@ Feature support of [sqlite expr syntax](https://www.sqlite.org/lang_expr.html).
 | pow(X,Y)   | No     |         |
 | power(X,Y) | No     |         |
 | radians(X) | No     |         |
-| sin(X)     | No     |         |
+| sin(X)     | Yes    |         |
 | sinh(X)    | No     |         |
 | sqrt(X)    | No     |         |
-| tan(X)     | No     |         |
+| tan(X)     | Yes    |         |
 | tanh(X)    | No     |         |
 | trunc(X)   | No     |         |
 

@@ -1603,7 +1603,59 @@ pub fn translate_expr(
                         }
                     }
                 }
-                Func::Math(mfs) => match mfs {
+                Func::Math(math_func) => match math_func {
+                    // Unary math functions
+                    MathFunc::Acos
+                    | MathFunc::Acosh
+                    | MathFunc::Asin
+                    | MathFunc::Asinh
+                    | MathFunc::Atan
+                    | MathFunc::Atanh
+                    | MathFunc::Ceil
+                    | MathFunc::Ceiling
+                    | MathFunc::Cos
+                    | MathFunc::Cosh
+                    | MathFunc::Degrees
+                    | MathFunc::Exp
+                    | MathFunc::Floor
+                    | MathFunc::Ln
+                    | MathFunc::Log10
+                    | MathFunc::Log2
+                    | MathFunc::Radians
+                    | MathFunc::Sin
+                    | MathFunc::Sinh
+                    | MathFunc::Sqrt
+                    | MathFunc::Tan
+                    | MathFunc::Tanh
+                    | MathFunc::Trunc => {
+                        let args = if let Some(args) = args {
+                            if args.len() != 1 {
+                                crate::bail_parse_error!(
+                                    "{} function with not exactly 1 argument",
+                                    math_func
+                                );
+                            }
+                            args
+                        } else {
+                            crate::bail_parse_error!("{} function with no arguments", math_func);
+                        };
+
+                        let regs = program.alloc_register();
+                        translate_expr(
+                            program,
+                            referenced_tables,
+                            &args[0],
+                            regs,
+                            precomputed_exprs_to_registers,
+                        )?;
+                        program.emit_insn(Insn::Function {
+                            constant_mask: 0,
+                            start_reg: regs,
+                            dest: target_register,
+                            func: func_ctx,
+                        });
+                        Ok(target_register)
+                    }
                     _ => unimplemented!(),
                 },
             }

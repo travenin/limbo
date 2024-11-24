@@ -188,7 +188,7 @@ Feature support of [sqlite expr syntax](https://www.sqlite.org/lang_expr.html).
 | pow(X,Y)   | No     |         |
 | power(X,Y) | No     |         |
 | radians(X) | No     |         |
-| sin(X)     | No     |         |
+| sin(X)     | Yes    |         |
 | sinh(X)    | No     |         |
 | sqrt(X)    | No     |         |
 | tan(X)     | No     |         |

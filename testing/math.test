@@ -361,3 +361,69 @@ do_execsql_test bitwise-not-zero {
 	SELECT ~0
 } {-1}
 
+
+set tolerance 1e-14
+
+do_execsql_test_tolerance sin-int {
+  SELECT sin(1)
+} {0.841470984807897} $tolerance
+
+do_execsql_test_tolerance sin-float {
+  SELECT sin(-0.5)
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-str {
+  SELECT sin('-0.5')
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-null {
+  SELECT sin(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance cos-int {
+  SELECT cos(1)
+} {0.54030230586814} $tolerance
+
+do_execsql_test_tolerance cos-float {
+  SELECT cos(-0.5)
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-str {
+  SELECT cos('-0.5')
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-null {
+  SELECT cos(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance tan-int {
+  SELECT tan(1)
+} {1.5574077246549} $tolerance
+
+do_execsql_test_tolerance tan-float {
+  SELECT tan(-0.5)
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-str {
+  SELECT tan('-0.5')
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-null {
+  SELECT tan(null)
+} {} $tolerance
+
+do_execsql_test_tolerance asin-int {
+  SELECT sin(id) from products
+} {0.8414709848078965
+0.9092974268256817
+0.1411200080598672
+-0.7568024953079282
+-0.9589242746631385
+-0.27941549819892586
+0.6569865987187891
+0.9893582466233818
+0.4121184852417566
+-0.5440211108893698
+-0.9999902065507035} $tolerance

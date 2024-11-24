@@ -2485,6 +2485,35 @@ impl Program {
                             }
                         },
                         crate::function::Func::Math(math_func) => match math_func {
+                            // Unary math functions
+                            MathFunc::Acos
+                            | MathFunc::Acosh
+                            | MathFunc::Asin
+                            | MathFunc::Asinh
+                            | MathFunc::Atan
+                            | MathFunc::Atanh
+                            | MathFunc::Ceil
+                            | MathFunc::Ceiling
+                            | MathFunc::Cos
+                            | MathFunc::Cosh
+                            | MathFunc::Degrees
+                            | MathFunc::Exp
+                            | MathFunc::Floor
+                            | MathFunc::Ln
+                            | MathFunc::Log
+                            | MathFunc::Log10
+                            | MathFunc::Log2
+                            | MathFunc::Radians
+                            | MathFunc::Sin
+                            | MathFunc::Sinh
+                            | MathFunc::Sqrt
+                            | MathFunc::Tan
+                            | MathFunc::Tanh
+                            | MathFunc::Trunc => {
+                                let reg_value = &state.registers[*start_reg];
+                                let result = exec_math_unary(reg_value, math_func);
+                                state.registers[*dest] = result;
+                            }
                             _ => unimplemented!(),
                         },
                         crate::function::Func::Agg(_) => {
@@ -3547,6 +3576,49 @@ fn execute_sqlite_version(version_integer: i64) -> String {
     let release = version_integer % 1_000;
 
     format!("{}.{}.{}", major, minor, release)
+}
+
+fn to_f64(reg: &OwnedValue) -> Option<f64> {
+    match reg {
+        OwnedValue::Integer(i) => Some(*i as f64),
+        OwnedValue::Float(f) => Some(*f),
+        OwnedValue::Text(t) => t.parse::<f64>().ok(),
+        OwnedValue::Agg(ctx) => to_f64(ctx.final_value()),
+        _ => None,
+    }
+}
+
+fn exec_math_unary(reg: &OwnedValue, function: &MathFunc) -> OwnedValue {
+    let f = match to_f64(reg) {
+        Some(f) => f,
+        None => return OwnedValue::Null,
+    };
+
+    match function {
+        MathFunc::Acos => OwnedValue::Float(f.acos()),
+        MathFunc::Acosh => OwnedValue::Float(f.acosh()),
+        MathFunc::Asin => OwnedValue::Float(f.asin()),
+        MathFunc::Asinh => OwnedValue::Float(f.asinh()),
+        MathFunc::Atan => OwnedValue::Float(f.atan()),
+        MathFunc::Atanh => OwnedValue::Float(f.atanh()),
+        MathFunc::Ceil | MathFunc::Ceiling => OwnedValue::Float(f.ceil()),
+        MathFunc::Cos => OwnedValue::Float(f.cos()),
+        MathFunc::Cosh => OwnedValue::Float(f.cosh()),
+        MathFunc::Degrees => OwnedValue::Float(f.to_degrees()),
+        MathFunc::Exp => OwnedValue::Float(f.exp()),
+        MathFunc::Floor => OwnedValue::Float(f.floor()),
+        MathFunc::Ln => OwnedValue::Float(f.ln()),
+        MathFunc::Log10 => OwnedValue::Float(f.log10()),
+        MathFunc::Log2 => OwnedValue::Float(f.log2()),
+        MathFunc::Radians => OwnedValue::Float(f.to_radians()),
+        MathFunc::Sin => OwnedValue::Float(f.sin()),
+        MathFunc::Sinh => OwnedValue::Float(f.sinh()),
+        MathFunc::Sqrt => OwnedValue::Float(f.sqrt()),
+        MathFunc::Tan => OwnedValue::Float(f.tan()),
+        MathFunc::Tanh => OwnedValue::Float(f.tanh()),
+        MathFunc::Trunc => OwnedValue::Float(f.trunc()),
+        _ => unreachable!("Unexpected mathematical unary function {:?}", function),
+    }
 }
 
 #[cfg(test)]

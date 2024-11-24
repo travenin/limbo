@@ -152,7 +152,7 @@ This document describes the SQLite compatibility status of Limbo:
 | pow(X,Y)   | No     |         |
 | power(X,Y) | No     |         |
 | radians(X) | No     |         |
-| sin(X)     | No     |         |
+| sin(X)     | Yes    |         |
 | sinh(X)    | No     |         |
 | sqrt(X)    | No     |         |
 | tan(X)     | No     |         |

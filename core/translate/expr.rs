@@ -1656,6 +1656,42 @@ pub fn translate_expr(
                         });
                         Ok(target_register)
                     }
+
+                    // Binary math functions
+                    MathFunc::Atan2 | MathFunc::Mod | MathFunc::Pow | MathFunc::Power => {
+                        let args = if let Some(args) = args {
+                            if args.len() != 2 {
+                                crate::bail_parse_error!(
+                                    "{} function with not exactly 2 argument",
+                                    math_func
+                                );
+                            }
+                            args
+                        } else {
+                            crate::bail_parse_error!("{} function with no arguments", math_func);
+                        };
+                        for arg in args.iter() {
+                            let reg = program.alloc_register();
+                            translate_expr(
+                                program,
+                                referenced_tables,
+                                arg,
+                                reg,
+                                precomputed_exprs_to_registers,
+                            )?;
+                            if let ast::Expr::Literal(_) = arg {
+                                program.mark_last_insn_constant();
+                            }
+                        }
+
+                        program.emit_insn(Insn::Function {
+                            constant_mask: 0,
+                            start_reg: target_register + 1,
+                            dest: target_register,
+                            func: func_ctx,
+                        });
+                        Ok(target_register)
+                    }
                     _ => unimplemented!(),
                 },
             }

@@ -566,3 +566,18 @@ do_execsql_test ceiling-str {
 do_execsql_test ceil-null {
   SELECT ceiling(null)
 } {}
+
+
+do_execsql_test mod-products-id {
+  SELECT mod(products.id, 3) from products
+} {1.0
+2.0
+0.0
+1.0
+2.0
+0.0
+1.0
+2.0
+0.0
+1.0
+2.0}

@@ -1492,6 +1492,36 @@ pub fn translate_expr(
                         });
                         Ok(target_register)
                     }
+                    MathFunc::Atan2 | MathFunc::Mod | MathFunc::Pow | MathFunc::Power => {
+                        let args = if let Some(args) = args {
+                            if args.len() != 2 {
+                                crate::bail_parse_error!(
+                                    "{} function with not exactly 2 argument",
+                                    math_func
+                                );
+                            }
+                            args
+                        } else {
+                            crate::bail_parse_error!("{} function with no arguments", math_func);
+                        };
+                        let regs = program.alloc_register();
+                        translate_expr(
+                            program,
+                            referenced_tables,
+                            &args[0],
+                            regs,
+                            cursor_hint,
+                            cached_results,
+                        )?;
+                        program.emit_insn(Insn::Function {
+                            // TODO: what should this be?
+                            constant_mask: 1,
+                            start_reg: regs,
+                            dest: target_register,
+                            func: func_ctx,
+                        });
+                        Ok(target_register)
+                    }
                     _ => unimplemented!(),
                 },
             }

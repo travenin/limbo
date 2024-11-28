@@ -214,3 +214,59 @@ do_execsql_test divide-agg-int-agg-float {
 do_execsql_test divide-agg-float-agg-int {
   SELECT min(price) / min(id) from products
 } {1.0}
+
+
+set tolerance 1e-12
+
+
+do_execsql_test_tolerance sin-int {
+  SELECT sin(1)
+} {0.841470984807897} $tolerance
+
+do_execsql_test_tolerance sin-float {
+  SELECT sin(-0.5)
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-str {
+  SELECT sin('-0.5')
+} {-0.479425538604203} $tolerance
+
+do_execsql_test_tolerance sin-null {
+  SELECT sin(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance cos-int {
+  SELECT cos(1)
+} {0.54030230586814} $tolerance
+
+do_execsql_test_tolerance cos-float {
+  SELECT cos(-0.5)
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-str {
+  SELECT cos('-0.5')
+} {0.877582561890373} $tolerance
+
+do_execsql_test_tolerance cos-null {
+  SELECT cos(null)
+} {} $tolerance
+
+
+do_execsql_test_tolerance tan-int {
+  SELECT tan(1)
+} {1.5574077246549} $tolerance
+
+do_execsql_test_tolerance tan-float {
+  SELECT tan(-0.5)
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-str {
+  SELECT tan('-0.5')
+} {-0.54630248984379} $tolerance
+
+do_execsql_test_tolerance tan-null {
+  SELECT tan(null)
+} {} $tolerance
+
+

@@ -22,3 +22,43 @@ proc do_execsql_test {test_name sql_statements expected_outputs} {
     set combined_expected_output [join $expected_outputs "\n"]
     run_test $::sqlite_exec $combined_sql $combined_expected_output
 }
+
+proc within_tolerance {actual expected tolerance} {
+    expr {abs($actual - $expected) <= $tolerance}
+}
+
+proc do_execsql_test_tolerance {test_name sql_statements expected_outputs tolerance} {
+    puts "Running test: $test_name"
+    set combined_sql [string trim $sql_statements]
+    set actual_output [evaluate_sql $::sqlite_exec $combined_sql]
+    set actual_values [split $actual_output "\n"]
+    set expected_values [split $expected_outputs "\n"]
+
+    if {[llength $actual_values] != [llength $expected_values]} {
+        puts "Test FAILED: '$sql_statements'"
+        puts "returned '$actual_output'"
+        puts "expected '$expected_outputs'"
+        exit 1
+    }
+
+    for {set i 0} {$i < [llength $actual_values]} {incr i} {
+        set actual [lindex $actual_values $i]
+        set expected [lindex $expected_values $i]
+
+        if {[string is double -strict $actual] && [string is double -strict $expected]} {
+            if {![within_tolerance $actual $expected $tolerance]} {
+                puts "Test FAILED: '$sql_statements'"
+                puts "returned '$actual_output'"
+                puts "expected '$expected_outputs'"
+                exit 1
+            }
+        } else {
+            if {$actual ne $expected} {
+                puts "Test FAILED: '$sql_statements'"
+                puts "returned '$actual_output'"
+                puts "expected '$expected_outputs'"
+                exit 1
+            }
+        }
+    }
+}

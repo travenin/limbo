@@ -2529,7 +2529,11 @@ impl Program {
                                 let result = exec_math_binary(lhs, rhs, math_func);
                                 state.registers[*dest] = result;
                             }
-                            _ => unimplemented!(),
+
+                            // Nullary math functions
+                            MathFunc::Pi => {
+                                state.registers[*dest] = OwnedValue::Float(std::f64::consts::PI);
+                            }
                         },
                         crate::function::Func::Agg(_) => {
                             unreachable!("Aggregate functions should not be handled here")

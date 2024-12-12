@@ -1692,6 +1692,21 @@ pub fn translate_expr(
                         });
                         Ok(target_register)
                     }
+
+                    // Nullary math functions
+                    MathFunc::Pi => {
+                        if args.is_some() {
+                            crate::bail_parse_error!("{} function with arguments", math_func);
+                        }
+
+                        program.emit_insn(Insn::Function {
+                            constant_mask: 0,
+                            start_reg: 0,
+                            dest: target_register,
+                            func: func_ctx,
+                        });
+                        Ok(target_register)
+                    }
                     _ => unimplemented!(),
                 },
             }

@@ -11,6 +11,18 @@ do_execsql_test select-const-2 {
   SELECT 2
 } {2}
 
+do_execsql_test select-const-float {
+  SELECT 1.0
+} {1.0}
+
+do_execsql_test select-const-float-long {
+  SELECT 0.1234567890123456789
+} {0.123456789012346}
+
+do_execsql_test select-const-float-small {
+  SELECT 0.00000099999999
+} {9.9999999e-07}
+
 do_execsql_test select-blob-empty {
   SELECT x'';
 } {}

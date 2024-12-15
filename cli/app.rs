@@ -399,7 +399,35 @@ impl Limbo {
                                     match value {
                                         Value::Null => self.null_value.clone(),
                                         Value::Integer(i) => format!("{}", i),
-                                        Value::Float(f) => format!("{:?}", f),
+                                        Value::Float(f) => {
+                                            // format to 15 most significant digits, e.g.
+                                            // 0.01 -> 0.01
+                                            // 100.0 -> 100.0
+                                            // sin(0.6) -> 0.564642473395035
+                                            // 1234567890.1234511 -> 1234567890.12345
+                                            // 1234567890.1234588 -> 1234567890.12346
+
+                                            let integer_part = f.trunc();
+                                            let decimal_part = f - integer_part;
+
+                                            println!("{} {}", integer_part, decimal_part);
+
+                                            if integer_part == 0.0 {
+                                                format!("{:.15}", f)
+                                            } else {
+                                                let integer_part_str = format!("{}", integer_part);
+                                                let integer_part_len = integer_part_str.len();
+                                                let decimal_part_str = format!(
+                                                    "{number:.prec$}",
+                                                    prec = 15 - integer_part_len,
+                                                    number = decimal_part
+                                                );
+                                                let decimal_part_str = decimal_part_str
+                                                    .trim_start_matches("0.")
+                                                    .trim_end_matches("0");
+                                                format!("{}.{}", integer_part, decimal_part_str)
+                                            }
+                                        }
                                         Value::Text(s) => s.to_string(),
                                         Value::Blob(b) => {
                                             format!("{}", String::from_utf8_lossy(b))

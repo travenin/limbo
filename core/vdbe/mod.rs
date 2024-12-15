@@ -2509,7 +2509,24 @@ impl Program {
                                 state.registers[*dest] = result;
                             }
 
-                            _ => unimplemented!(),
+                            MathFuncArity::UnaryOrBinary => match math_func {
+                                MathFunc::Log => {
+                                    let lhs = &state.registers[*start_reg];
+                                    let rhs = state.registers.get(*start_reg + 1);
+
+                                    let result = if let Some(arg) = rhs {
+                                        exec_math_log(arg, Some(lhs))
+                                    } else {
+                                        exec_math_log(lhs, None)
+                                    };
+
+                                    state.registers[*dest] = result;
+                                }
+                                _ => unreachable!(
+                                    "Unexpected mathematical UnaryOrBinary function {:?}",
+                                    math_func
+                                ),
+                            },
                         },
                         crate::function::Func::Agg(_) => {
                             unreachable!("Aggregate functions should not be handled here")
@@ -3691,6 +3708,27 @@ fn exec_math_binary(lhs: &OwnedValue, rhs: &OwnedValue, function: &MathFunc) -> 
         MathFunc::Pow | MathFunc::Power => OwnedValue::Float(lhs.powf(rhs)),
         _ => unreachable!("Unexpected mathematical binary function {:?}", function),
     }
+}
+
+fn exec_math_log(arg: &OwnedValue, base: Option<&OwnedValue>) -> OwnedValue {
+    let f = match to_f64(arg) {
+        Some(f) => f,
+        None => return OwnedValue::Null,
+    };
+
+    let base = match base {
+        Some(base) => match to_f64(base) {
+            Some(f) => f,
+            None => return OwnedValue::Null,
+        },
+        None => 10.0,
+    };
+
+    if f <= 0.0 || base <= 0.0 || base == 1.0 {
+        return OwnedValue::Null;
+    }
+
+    OwnedValue::Float(f.log(base))
 }
 
 #[cfg(test)]

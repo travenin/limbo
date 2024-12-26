@@ -391,15 +391,12 @@ pub fn get_table_ref_bitmask_for_operator<'a>(
     and predicate = "t1.a = t2.b"
     then the return value will be (in bits): 011
 */
-pub fn get_table_ref_bitmask_for_ast_expr<'a>(
-    tables: &'a Vec<BTreeTableReference>,
-    predicate: &'a ast::Expr,
-) -> Result<usize> {
+pub fn get_table_ref_bitmask_for_ast_expr(predicate: &ast::Expr) -> Result<usize> {
     let mut table_refs_mask = 0;
     match predicate {
         ast::Expr::Binary(e1, _, e2) => {
-            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, e1)?;
-            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, e2)?;
+            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(e1)?;
+            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(e2)?;
         }
         ast::Expr::Column { table, .. } => {
             table_refs_mask |= 1 << table;
@@ -410,21 +407,21 @@ pub fn get_table_ref_bitmask_for_ast_expr<'a>(
         }
         ast::Expr::Literal(_) => {}
         ast::Expr::Like { lhs, rhs, .. } => {
-            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, lhs)?;
-            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, rhs)?;
+            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(lhs)?;
+            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(rhs)?;
         }
         ast::Expr::FunctionCall {
             args: Some(args), ..
         } => {
             for arg in args {
-                table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, arg)?;
+                table_refs_mask |= get_table_ref_bitmask_for_ast_expr(arg)?;
             }
         }
         ast::Expr::InList { lhs, rhs, .. } => {
-            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, lhs)?;
+            table_refs_mask |= get_table_ref_bitmask_for_ast_expr(lhs)?;
             if let Some(rhs_list) = rhs {
                 for rhs_expr in rhs_list {
-                    table_refs_mask |= get_table_ref_bitmask_for_ast_expr(tables, rhs_expr)?;
+                    table_refs_mask |= get_table_ref_bitmask_for_ast_expr(rhs_expr)?;
                 }
             }
         }

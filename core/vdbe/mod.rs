@@ -2551,7 +2551,6 @@ impl Program {
                                     .unwrap_or(OwnedValue::Null);
                                 }
                             },
-                            _ => unreachable!(), // when more extension types are added
                         },
                         crate::function::Func::Math(math_func) => match math_func.arity() {
                             MathFuncArity::Nullary => match math_func {

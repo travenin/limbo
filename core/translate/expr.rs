@@ -1696,7 +1696,6 @@ pub fn translate_expr(
                             Ok(target_register)
                         }
                     },
-                    _ => unreachable!("{ext_func} not implemented yet"),
                 },
                 Func::Math(math_func) => match math_func.arity() {
                     MathFuncArity::Nullary => {

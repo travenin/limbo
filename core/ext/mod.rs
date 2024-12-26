@@ -14,7 +14,6 @@ impl std::fmt::Display for ExtFunc {
         match self {
             #[cfg(feature = "uuid")]
             ExtFunc::Uuid(uuidfn) => write!(f, "{}", uuidfn),
-            _ => write!(f, "unknown"),
         }
     }
 }
@@ -24,7 +23,6 @@ impl ExtFunc {
         match name {
             #[cfg(feature = "uuid")]
             name => UuidFunc::resolve_function(name, num_args),
-            _ => None,
         }
     }
 }

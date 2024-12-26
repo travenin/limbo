@@ -15,7 +15,7 @@ pub fn normalize_ident(identifier: &str) -> String {
         .iter()
         .find(|&(start, end)| identifier.starts_with(*start) && identifier.ends_with(*end));
 
-    if let Some(&(start, end)) = quote_pair {
+    if let Some((_start, _end)) = quote_pair {
         &identifier[1..identifier.len() - 1]
     } else {
         identifier

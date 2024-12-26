@@ -244,7 +244,7 @@ impl Interaction {
             Interaction::Assertion(_) => {
                 unreachable!("unexpected: this function should only be called on queries")
             }
-            Interaction::Fault(fault) => {
+            Interaction::Fault(_) => {
                 unreachable!("unexpected: this function should only be called on queries")
             }
         }
@@ -347,7 +347,7 @@ fn property_insert_select<R: rand::Rng>(rng: &mut R, env: &SimulatorEnv) -> Inte
     Interactions(vec![insert_query, select_query, assertion])
 }
 
-fn create_table<R: rand::Rng>(rng: &mut R, env: &SimulatorEnv) -> Interactions {
+fn create_table<R: rand::Rng>(rng: &mut R, _env: &SimulatorEnv) -> Interactions {
     let create_query = Interaction::Query(Query::Create(Create::arbitrary(rng)));
     Interactions(vec![create_query])
 }
@@ -363,7 +363,7 @@ fn random_write<R: rand::Rng>(rng: &mut R, env: &SimulatorEnv) -> Interactions {
     Interactions(vec![insert_query])
 }
 
-fn random_fault<R: rand::Rng>(rng: &mut R, env: &SimulatorEnv) -> Interactions {
+fn random_fault<R: rand::Rng>(_rng: &mut R, _env: &SimulatorEnv) -> Interactions {
     let fault = Interaction::Fault(Fault::Disconnect);
     Interactions(vec![fault])
 }

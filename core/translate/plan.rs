@@ -205,6 +205,7 @@ pub struct BTreeTableReference {
 
 /// An enum that represents a search operation that can be used to search for a row in a table using an index
 /// (i.e. a primary key or a secondary index)
+#[allow(clippy::enum_variant_names)]
 #[derive(Clone, Debug)]
 pub enum Search {
     /// A rowid equality point lookup. This is a special case that uses the SeekRowid bytecode instruction and does not loop.

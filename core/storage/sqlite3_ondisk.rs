@@ -188,7 +188,6 @@ pub struct WalHeader {
 /// Immediately following the wal-header are zero or more frames.
 /// Each frame consists of a 24-byte frame-header followed by <page-size> bytes of page data.
 /// The frame-header is six big-endian 32-bit unsigned integer values, as follows:
-#[allow(dead_code)]
 #[derive(Debug, Default)]
 pub struct WalFrameHeader {
     /// Page number

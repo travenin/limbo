@@ -8,7 +8,6 @@ use crate::{storage::sqlite3_ondisk::DatabaseHeader, Connection};
 
 use super::{BranchOffset, CursorID, Insn, InsnReference, Program, Table};
 
-#[allow(dead_code)]
 pub struct ProgramBuilder {
     next_free_register: usize,
     next_free_label: BranchOffset,
@@ -25,6 +24,7 @@ pub struct ProgramBuilder {
     // List of deferred label resolutions. Each entry is a pair of (label, insn_reference).
     deferred_label_resolutions: Vec<(BranchOffset, InsnReference)>,
     // Bitmask of cursors that have emitted a SeekRowid instruction.
+    #[allow(dead_code)]
     seekrowid_emitted_bitmask: u64,
     // map of instruction index to manual comment (used in EXPLAIN)
     comments: HashMap<BranchOffset, &'static str>,

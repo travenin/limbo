@@ -17,8 +17,8 @@ pub struct PageCacheKey {
     max_frame: Option<u64>,
 }
 
-#[allow(dead_code)]
 struct PageCacheEntry {
+    #[allow(dead_code)]
     key: PageCacheKey,
     page: PageRef,
     prev: Option<NonNull<PageCacheEntry>>,

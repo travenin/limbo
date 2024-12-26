@@ -17,6 +17,14 @@ jobs:
     - name: Check formatting
       run: cargo fmt --check
 
+  cargo-clippy-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Check Cargo Clippy
+      run: |
+        cargo clippy
+        
   build-native:
     strategy:
       matrix:

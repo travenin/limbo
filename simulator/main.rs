@@ -221,7 +221,7 @@ fn execute_plans(env: &mut SimulatorEnv, plans: &mut Vec<InteractionPlan>) -> Re
 fn execute_plan(
     env: &mut SimulatorEnv,
     connection_index: usize,
-    plans: &mut Vec<InteractionPlan>,
+    plans: &mut [InteractionPlan],
 ) -> Result<()> {
     let connection = &env.connections[connection_index];
     let plan = &mut plans[connection_index];

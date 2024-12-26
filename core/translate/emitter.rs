@@ -405,7 +405,7 @@ fn init_source(
             init_source(program, left, metadata)?;
             init_source(program, right, metadata)?;
 
-            return Ok(());
+            Ok(())
         }
         SourceOperator::Scan {
             id,
@@ -425,7 +425,7 @@ fn init_source(
             });
             program.emit_insn(Insn::OpenReadAwait);
 
-            return Ok(());
+            Ok(())
         }
         SourceOperator::Search {
             id,
@@ -458,11 +458,9 @@ fn init_source(
                 program.emit_insn(Insn::OpenReadAwait);
             }
 
-            return Ok(());
+            Ok(())
         }
-        SourceOperator::Nothing => {
-            return Ok(());
-        }
+        SourceOperator::Nothing => Ok(()),
     }
 }
 
@@ -537,7 +535,7 @@ fn open_loop(
                 });
             }
 
-            return Ok(());
+            Ok(())
         }
         SourceOperator::Scan {
             id,
@@ -596,7 +594,7 @@ fn open_loop(
                 }
             }
 
-            return Ok(());
+            Ok(())
         }
         SourceOperator::Search {
             id,
@@ -779,11 +777,9 @@ fn open_loop(
                 }
             }
 
-            return Ok(());
+            Ok(())
         }
-        SourceOperator::Nothing => {
-            return Ok(());
-        }
+        SourceOperator::Nothing => Ok(()),
     }
 }
 
@@ -852,14 +848,14 @@ fn inner_loop_emit(
         );
     }
     // if we have neither, we emit a ResultRow. In that case, if we have a Limit, we handle that with DecrJumpZero.
-    return inner_loop_source_emit(
+    inner_loop_source_emit(
         program,
         &plan.result_columns,
         &plan.aggregates,
         metadata,
         InnerLoopEmitTarget::ResultRow { limit: plan.limit },
         &plan.referenced_tables,
-    );
+    )
 }
 
 /// This is a helper function for inner_loop_emit,

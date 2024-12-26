@@ -637,7 +637,7 @@ impl Optimizable for ast::Expr {
                 if id.0.eq_ignore_ascii_case("false") {
                     return Ok(Some(ConstantPredicate::AlwaysFalse));
                 }
-                return Ok(None);
+                Ok(None)
             }
             ast::Expr::Literal(lit) => match lit {
                 ast::Literal::Null => Ok(Some(ConstantPredicate::AlwaysFalse)),

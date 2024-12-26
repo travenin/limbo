@@ -366,7 +366,7 @@ pub fn get_table_ref_bitmask_for_operator<'a>(
             table_refs_mask |= 1
                 << tables
                     .iter()
-                    .position(|t| &t.table_identifier == &table_reference.table_identifier)
+                    .position(|t| t.table_identifier == table_reference.table_identifier)
                     .unwrap();
         }
         SourceOperator::Search {
@@ -375,7 +375,7 @@ pub fn get_table_ref_bitmask_for_operator<'a>(
             table_refs_mask |= 1
                 << tables
                     .iter()
-                    .position(|t| &t.table_identifier == &table_reference.table_identifier)
+                    .position(|t| t.table_identifier == table_reference.table_identifier)
                     .unwrap();
         }
         SourceOperator::Nothing => {}

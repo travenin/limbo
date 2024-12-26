@@ -1,7 +1,7 @@
 use clap::Parser;
 use generation::plan::{Interaction, InteractionPlan, ResultSet};
 use generation::{pick_index, ArbitraryFrom};
-use limbo_core::{Connection, Database, Result, RowResult, IO};
+use limbo_core::{Database, Result, IO};
 use model::table::Value;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -11,7 +11,6 @@ use runner::io::SimulatorIO;
 use std::backtrace::Backtrace;
 use std::io::Write;
 use std::path::Path;
-use std::rc::Rc;
 use std::sync::Arc;
 use tempfile::TempDir;
 

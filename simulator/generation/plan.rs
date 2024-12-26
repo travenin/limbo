@@ -9,7 +9,7 @@ use crate::{
         query::{Create, Insert, Predicate, Query, Select},
         table::Value,
     },
-    SimConnection, SimulatorEnv, SimulatorOpts,
+    SimConnection, SimulatorEnv,
 };
 
 use crate::generation::{frequency, Arbitrary, ArbitraryFrom};
@@ -28,11 +28,11 @@ impl Display for InteractionPlan {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for interaction in &self.plan {
             match interaction {
-                Interaction::Query(query) => write!(f, "{};\n", query)?,
+                Interaction::Query(query) => writeln!(f, "{};", query)?,
                 Interaction::Assertion(assertion) => {
-                    write!(f, "-- ASSERT: {};\n", assertion.message)?
+                    writeln!(f, "-- ASSERT: {};", assertion.message)?
                 }
-                Interaction::Fault(fault) => write!(f, "-- FAULT: {};\n", fault)?,
+                Interaction::Fault(fault) => writeln!(f, "-- FAULT: {};", fault)?,
             }
         }
 

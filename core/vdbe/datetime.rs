@@ -255,7 +255,6 @@ fn get_max_datetime_exclusive() -> NaiveDateTime {
 }
 
 /// Modifier doc https://www.sqlite.org/lang_datefunc.html#modifiers
-#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 enum Modifier {
     Days(i64),
@@ -265,6 +264,7 @@ enum Modifier {
     Months(i32),
     Years(i32),
     TimeOffset(TimeDelta),
+    #[allow(dead_code)]
     DateOffset {
         years: i32,
         months: i32,

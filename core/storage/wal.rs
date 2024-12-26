@@ -196,6 +196,7 @@ struct OngoingCheckpoint {
 }
 
 pub struct WalFile {
+    #[allow(dead_code)]
     io: Arc<dyn crate::io::IO>,
     buffer_pool: Rc<BufferPool>,
 
@@ -221,6 +222,7 @@ pub struct WalFile {
 /// that needs to be communicated between threads so this struct does the job.
 pub struct WalFileShared {
     wal_header: Arc<RwLock<sqlite3_ondisk::WalHeader>>,
+    #[allow(dead_code)]
     min_frame: u64,
     max_frame: u64,
     nbackfills: u64,

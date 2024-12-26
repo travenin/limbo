@@ -63,6 +63,7 @@ enum TransactionState {
     None,
 }
 
+#[allow(dead_code)]
 pub struct Database {
     pager: Rc<Pager>,
     schema: Rc<RefCell<Schema>>,
@@ -206,6 +207,7 @@ pub struct Connection {
     pager: Rc<Pager>,
     schema: Rc<RefCell<Schema>>,
     header: Rc<RefCell<DatabaseHeader>>,
+    #[allow(dead_code)]
     db: Weak<Database>, // backpointer to the database holding this connection
     transaction_state: RefCell<TransactionState>,
     last_insert_rowid: Cell<u64>,

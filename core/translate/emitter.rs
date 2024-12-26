@@ -240,12 +240,7 @@ fn emit_program_for_select(
     inner_loop_emit(&mut program, &mut plan, &mut metadata)?;
 
     // Clean up and close the main execution loop
-    close_loop(
-        &mut program,
-        &plan.source,
-        &mut metadata,
-        &plan.referenced_tables,
-    )?;
+    close_loop(&mut program, &plan.source, &mut metadata)?;
 
     if let Some(skip_loops_label) = skip_loops_label {
         program.resolve_label(skip_loops_label, program.offset());
@@ -1110,7 +1105,6 @@ fn close_loop(
     program: &mut ProgramBuilder,
     source: &SourceOperator,
     metadata: &mut Metadata,
-    referenced_tables: &[BTreeTableReference],
 ) -> Result<()> {
     match source {
         SourceOperator::Join {
@@ -1120,7 +1114,7 @@ fn close_loop(
             outer,
             ..
         } => {
-            close_loop(program, right, metadata, referenced_tables)?;
+            close_loop(program, right, metadata)?;
 
             if *outer {
                 let lj_meta = metadata.left_joins.get(id).unwrap();
@@ -1167,7 +1161,7 @@ fn close_loop(
                 assert!(program.offset() == jump_offset);
             }
 
-            close_loop(program, left, metadata, referenced_tables)?;
+            close_loop(program, left, metadata)?;
 
             Ok(())
         }

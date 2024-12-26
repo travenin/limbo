@@ -439,8 +439,7 @@ fn push_predicate(
                 .unwrap();
 
             // Get bitmask showing which tables this predicate references
-            let predicate_bitmask =
-                get_table_ref_bitmask_for_ast_expr(referenced_tables, &predicate)?;
+            let predicate_bitmask = get_table_ref_bitmask_for_ast_expr(&predicate)?;
 
             // Each table has a bit position based on join order from left to right
             // e.g. in SELECT * FROM t1 JOIN t2 JOIN t3
@@ -492,7 +491,7 @@ fn push_predicate(
             let pred = push_result_right.unwrap();
 
             // Get bitmasks for tables referenced in predicate and both sides of join
-            let table_refs_bitmask = get_table_ref_bitmask_for_ast_expr(referenced_tables, &pred)?;
+            let table_refs_bitmask = get_table_ref_bitmask_for_ast_expr(&pred)?;
             let left_bitmask = get_table_ref_bitmask_for_operator(referenced_tables, left)?;
             let right_bitmask = get_table_ref_bitmask_for_operator(referenced_tables, right)?;
 

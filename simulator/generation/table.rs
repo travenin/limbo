@@ -42,12 +42,10 @@ impl Arbitrary for Column {
 impl Arbitrary for ColumnType {
     fn arbitrary<R: Rng>(rng: &mut R) -> Self {
         pick(
-            &vec![
-                ColumnType::Integer,
+            &[ColumnType::Integer,
                 ColumnType::Float,
                 ColumnType::Text,
-                ColumnType::Blob,
-            ],
+                ColumnType::Blob],
             rng,
         )
         .to_owned()

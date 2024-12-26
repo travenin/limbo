@@ -23,6 +23,7 @@ pub(crate) enum SimConnection {
     Disconnected,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub(crate) struct SimulatorOpts {
     pub(crate) ticks: usize,

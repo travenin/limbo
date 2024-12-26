@@ -17,6 +17,7 @@ pub(crate) struct Table {
     pub(crate) columns: Vec<Column>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub(crate) struct Column {
     pub(crate) name: String,

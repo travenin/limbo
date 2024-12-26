@@ -10,6 +10,7 @@ pub(crate) struct SimulatorFile {
     pub(crate) writes: RefCell<usize>,
     pub(crate) reads: RefCell<usize>,
     pub(crate) syncs: RefCell<usize>,
+    #[allow(dead_code)]
     pub(crate) page_size: usize,
 }
 

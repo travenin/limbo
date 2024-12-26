@@ -59,6 +59,7 @@ impl ProgramBuilder {
         reg
     }
 
+    #[allow(dead_code)]
     pub fn next_free_register(&self) -> usize {
         self.next_free_register
     }

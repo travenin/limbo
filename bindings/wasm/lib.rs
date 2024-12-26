@@ -6,6 +6,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 
+#[allow(dead_code)]
 #[wasm_bindgen]
 pub struct Database {
     db: Arc<limbo_core::Database>,

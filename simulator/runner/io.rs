@@ -32,6 +32,7 @@ impl SimulatorIO {
         })
     }
 
+    #[allow(dead_code)]
     pub(crate) fn inject_fault(&self, fault: bool) {
         self.fault.replace(fault);
         for file in self.files.borrow().iter() {

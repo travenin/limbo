@@ -282,6 +282,7 @@ fn execute_interaction(
     Ok(())
 }
 
+#[allow(dead_code)]
 fn compare_equal_rows(a: &[Vec<Value>], b: &[Vec<Value>]) {
     assert_eq!(a.len(), b.len(), "lengths are different");
     for (r1, r2) in a.iter().zip(b) {

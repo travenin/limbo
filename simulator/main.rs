@@ -1,7 +1,7 @@
 use clap::Parser;
 use generation::plan::{Interaction, InteractionPlan, ResultSet};
 use generation::{pick_index, ArbitraryFrom};
-use limbo_core::{Database, Result, IO};
+use limbo_core::{Database, Result};
 use model::table::Value;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;

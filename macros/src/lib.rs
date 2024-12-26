@@ -65,15 +65,13 @@ pub fn derive_description_from_doc(item: TokenStream) -> TokenStream {
 
 /// Processes a Rust docs to extract the description string.
 fn process_description(token_iter: &mut IntoIter) -> Option<String> {
-    if let Some(doc_token_tree) = token_iter.next() {
-        if let TokenTree::Group(doc_group) = doc_token_tree {
-            let mut doc_group_iter = doc_group.stream().into_iter();
-            // Skip the `desc` and `(` tokens to reach the actual description
-            doc_group_iter.next();
-            doc_group_iter.next();
-            if let Some(TokenTree::Literal(description)) = doc_group_iter.next() {
-                return Some(description.to_string());
-            }
+    if let Some(TokenTree::Group(doc_group)) = token_iter.next() {
+        let mut doc_group_iter = doc_group.stream().into_iter();
+        // Skip the `desc` and `(` tokens to reach the actual description
+        doc_group_iter.next();
+        doc_group_iter.next();
+        if let Some(TokenTree::Literal(description)) = doc_group_iter.next() {
+            return Some(description.to_string());
         }
     }
     None
@@ -124,7 +122,7 @@ fn generate_get_description(
     }
 
     let enum_impl = format!(
-        "impl {}  {{ 
+        "impl {}  {{
      pub fn get_description(&self) -> Option<&str> {{
      match self {{
      {}

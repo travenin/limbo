@@ -423,7 +423,7 @@ impl Pager {
                 CheckpointMode::Passive,
             ) {
                 Ok(CheckpointStatus::IO) => {
-                    self.io.run_once();
+                    let _ = self.io.run_once();
                 }
                 Ok(CheckpointStatus::Done) => {
                     break;

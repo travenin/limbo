@@ -886,7 +886,7 @@ fn read_payload(unread: &[u8], payload_size: usize, pager: Rc<Pager>) -> (Vec<u8
                     break;
                 }
             }
-            let page = page.get();
+            let mut page = page.get();
             let contents = page.contents.as_mut().unwrap();
 
             let to_read = left_to_read.min(usable_size - 4);

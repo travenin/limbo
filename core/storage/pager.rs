@@ -5,11 +5,11 @@ use crate::storage::sqlite3_ondisk::{self, DatabaseHeader, PageContent};
 use crate::storage::wal::Wal;
 use crate::{Buffer, Result};
 use log::trace;
-use std::cell::{RefCell, UnsafeCell};
+use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 
 use super::page_cache::{DumbLruPageCache, PageCacheKey};
 use super::wal::{CheckpointMode, CheckpointStatus};
@@ -21,7 +21,7 @@ pub struct PageInner {
 }
 
 pub struct Page {
-    pub inner: UnsafeCell<PageInner>,
+    pub inner: Mutex<PageInner>,
 }
 
 // Concurrency control of pages will be handled by the pager, we won't wrap Page with RwLock
@@ -42,7 +42,7 @@ const PAGE_LOADED: usize = 0b10000;
 impl Page {
     pub fn new(id: usize) -> Page {
         Page {
-            inner: UnsafeCell::new(PageInner {
+            inner: Mutex::new(PageInner {
                 flags: AtomicUsize::new(0),
                 contents: None,
                 id,
@@ -50,8 +50,8 @@ impl Page {
         }
     }
 
-    pub fn get(&self) -> &mut PageInner {
-        unsafe { &mut *self.inner.get() }
+    pub fn get(&self) -> std::sync::MutexGuard<PageInner> {
+        self.inner.lock().unwrap()
     }
 
     pub fn is_uptodate(&self) -> bool {
@@ -456,7 +456,8 @@ impl Pager {
                 first_page_ref.set_dirty();
                 self.add_dirty(1);
 
-                let contents = first_page_ref.get().contents.as_ref().unwrap();
+                let page_inner = first_page_ref.get();
+                let contents = page_inner.contents.as_ref().unwrap();
                 contents.write_database_header(&header);
                 break;
             }

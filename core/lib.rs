@@ -175,7 +175,8 @@ pub fn maybe_init_database_file(file: &Rc<dyn File>, io: &Arc<dyn IO>) -> Result
                 DATABASE_HEADER_SIZE,
             );
 
-            let contents = page1.get().contents.as_mut().unwrap();
+            let mut page_inner = page1.get();
+            let contents = page_inner.contents.as_mut().unwrap();
             contents.write_database_header(&db_header);
             // write the first page to disk synchronously
             let flag_complete = Rc::new(RefCell::new(false));
